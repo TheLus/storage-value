@@ -1,8 +1,8 @@
-# local-storage-value
+# storage-value
 ## Usage
 ### set value to LocalStorage
 ```
-import Value from 'local-storage-value';
+import Value from 'storage-value';
 
 const volume = new Value('volume');
 console.log(volume.value); // undefined
@@ -14,7 +14,7 @@ console.log(volume.value); // 100
 
 ### use default
 ```
-import Value from 'local-storage-value';
+import Value from 'storage-value';
 
 const volume = new Value('volume', {default: 30});
 console.log(volume.value); // 30
@@ -31,7 +31,7 @@ console.log(volume3.value); // 100
 
 ### use another storage
 ```
-import Value from 'local-storage-value';
+import Value from 'storage-value';
 
 const volume = new Value('volume', {storage: sessionStorage});
 volume.value = 100;

@@ -1,7 +1,7 @@
 {
-  "name": "local-storage-value",
-  "version": "0.0.1",
-  "description": "Value using LocalStorage.",
+  "name": "storage-value",
+  "version": "0.0.2",
+  "description": "Value using Storage.",
   "main": "lib/value.js",
   "files": ["lib"],
   "scripts": {
@@ -11,17 +11,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/TheLus/local-storage-value.git"
+    "url": "git+https://github.com/TheLus/storage-value.git"
   },
   "keywords": [
-    "local-storage"
+    "local-storage, session-storage"
   ],
   "author": "the_lus",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/TheLus/local-storage-value/issues"
+    "url": "https://github.com/TheLus/storage-value/issues"
   },
-  "homepage": "https://github.com/TheLus/local-storage-value#readme",
+  "homepage": "https://github.com/TheLus/storage-value#readme",
   "dependencies": {
   },
   "devDependencies": {
