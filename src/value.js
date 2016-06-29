@@ -78,7 +78,7 @@ class Value {
    * Value インスタンスの内容を storage に保存
    */
   flush() {
-    this._storage.setItem(this._key, JSON.stringify(this._value));
+    this._storage.setItem(this._key, JSON.stringify(Value._values[this._storageId][this._key]));
   }
 
   /**

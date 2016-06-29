@@ -27,6 +27,14 @@ describe('Value', () => {
     assert(test1.value === 200);
   });
 
+  it('flush で localStorage に保存される', () => {
+    const localStorageTest = new Value('localStorageTest');
+    localStorageTest.value = 100;
+    localStorageTest.flush();
+    const storageValue = JSON.parse(localStorage.getItem('localStorageTest'));
+    assert(storageValue === 100);
+  });
+
   it('object を利用できる', () => {
     const targetObj = {hoge: 'hoge', fuga: 200};
     const test1 = new Value('test');
