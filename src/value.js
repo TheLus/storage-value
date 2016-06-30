@@ -1,6 +1,7 @@
 import debounce from 'lodash.debounce';
+import memoryStorage from './memory-storage';
 
-class Value {
+export default class Value {
 
   /**
    * new Value によって作られた値の配列
@@ -53,7 +54,8 @@ class Value {
   }
 
   constructor(key, opt = {}) {
-    this._storage = opt.storage ? opt.storage : localStorage;
+    const defaultStorage = typeof localStorage !== 'undefined' ? localStorage : memoryStorage;
+    this._storage = opt.storage ? opt.storage : defaultStorage;
     this._default = opt.default ? opt.default : null;
     this._debouncedFlush = debounce(this.flush, opt.debounceTime ? opt.debounceTime : 200);
     this._namespace = opt.namespace ? opt.namespace : '';
@@ -66,12 +68,10 @@ class Value {
     }
     this._storageId = Value._storages.indexOf(this._storage);
 
-    // メモリ上にある場合はそれを利用し、なければ storage から取り出す
-    const lastValue = Value._values[this._storageId][this._key] ?
-      Value._values[this._storageId][this._key] :
-      JSON.parse(this._storage.getItem(this._key));
-
-    Value._values[this._storageId][this._key] = lastValue;
+    // メモリ上に値がなければ storage から取り出す
+    if(typeof Value._values[this._storageId][this._key] === 'undefined') {
+      Value._values[this._storageId][this._key] = JSON.parse(this._storage.getItem(this._key));
+    }
   }
 
   /**
@@ -99,5 +99,3 @@ class Value {
     this._debouncedFlush();
   }
 }
-
-module.exports = Value;
