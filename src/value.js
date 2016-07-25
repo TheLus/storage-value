@@ -55,8 +55,8 @@ export default class Value {
 
   constructor(key, opt = {}) {
     const defaultStorage = typeof localStorage !== 'undefined' ? localStorage : memoryStorage;
-    this._storage = opt.storage ? opt.storage : defaultStorage;
-    this._default = opt.default ? opt.default : null;
+    this._storage = typeof opt.storage !== 'undefined' ? opt.storage : defaultStorage;
+    this._default = typeof opt.default !== 'undefined' ? opt.default : null;
     this._debouncedFlush = debounce(this.flush, opt.debounceTime ? opt.debounceTime : 200);
     this._namespace = opt.namespace ? opt.namespace : '';
     this._key = this._namespace + key;

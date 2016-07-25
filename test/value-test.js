@@ -53,6 +53,13 @@ describe('Value', () => {
     assert(test2.value === null);
   });
 
+  it('初期値に false を指定できる', () => {
+    const test1 = new Value('test', {default: false});
+    assert(test1.value === false);
+    const test2 = new Value('test');
+    assert(test2.value === null);
+  });
+
   it('storage の指定ができる', () => {
     const test1 = new Value('test');
     test1.value = 30;
