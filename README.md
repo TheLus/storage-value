@@ -1,7 +1,17 @@
 # storage-value
+
+Simple storage interface library that use localStorage by default.
+But, it allows developers to store to other storage using `storage` option.
+
+## Installation
+Install with [npm](https://www.npmjs.com/):
+```
+npm install storage-value
+```
+
 ## Usage
 ### set value to storage
-```
+```js
 import Value from 'storage-value';
 
 const volume1 = new Value('volume');
@@ -16,7 +26,7 @@ console.log(volume1.value); // 200
 ```
 
 ### use default
-```
+```js
 import Value from 'storage-value';
 
 const volume = new Value('volume', {default: 30});
@@ -33,7 +43,7 @@ console.log(volume3.value); // 100
 ```
 
 ### use another storage
-```
+```js
 import Value from 'storage-value';
 
 const volume = new Value('volume', {storage: sessionStorage});
@@ -48,7 +58,7 @@ console.log(volume3.value); // 100
 ```
 
 ### use namespace
-```
+```js
 import Value from 'storage-value';
 
 const HogeValue = Value.namespace('hoge');
@@ -63,3 +73,6 @@ test2.value = 30;
 const test3 = new HogeValue('test');
 console.log(test3.value); // 100
 ```
+## License
+
+MIT
