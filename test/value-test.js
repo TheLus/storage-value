@@ -53,6 +53,16 @@ describe('Value', () => {
     assert(test2.value === null);
   });
 
+  it('初期値にを指定した値に 0 や false を設定できる', () => {
+    const test1 = new Value('test', {default: 100});
+    assert(test1.value === 100);
+    test1.value = 0;
+    assert(test1.value === 0);
+    test1.value = false;
+    assert(test1.value === false);
+
+  });
+
   it('初期値に false を指定できる', () => {
     const test1 = new Value('test', {default: false});
     assert(test1.value === false);
