@@ -1,6 +1,6 @@
 {
   "name": "storage-value",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Value using Storage.",
   "main": "lib/value.js",
   "files": [
