@@ -58,8 +58,8 @@ export default class Value {
     this._storage = typeof opt.storage !== 'undefined' ? opt.storage : defaultStorage;
     this._default = typeof opt.default !== 'undefined' ? opt.default : null;
     this._debouncedFlush = debounce(this.flush, opt.debounceTime ? opt.debounceTime : 200);
-    this._namespace = typeof opt.namespace === 'string' ? opt.namespace : '';
-    this._key = this._namespace + key;
+    this._namespace = typeof opt.namespace === 'string' ? `${opt.namespace}.` : '';
+    this._key = `${this._namespace}${key}`;
 
     // 新たな storage を追加された場合は管理対象に追加
     if (Value._storages.indexOf(this._storage) < 0) {
