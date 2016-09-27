@@ -11,6 +11,13 @@ export default class Value {
   static _values = {};
 
   /**
+   * 有効期限を管理するオブジェクト
+   * @type {object}
+   * @private
+   */
+  static _expires = {};
+
+  /**
    * storage 指定によって指定された storage の配列
    * @type {object[]}
    * @private
@@ -23,7 +30,11 @@ export default class Value {
   static flush() {
     Object.keys(Value._values).forEach((storageId) => {
       Object.keys(Value._values[storageId]).forEach((key) => {
+        if (typeof Value._values[storageId][key] === 'undefined') {
+          return;
+        }
         Value._storages[storageId].setItem(key, JSON.stringify(Value._values[storageId][key]));
+        Value._storages[storageId].setItem(Value._expiresKeyGen(key), Value._expires[storageId][key]);
       });
     });
   }
@@ -35,10 +46,22 @@ export default class Value {
     Object.keys(Value._values).forEach((storageId) => {
       Object.keys(Value._values[storageId]).forEach((key) => {
         Value._storages[storageId].removeItem(key);
+        Value._storages[storageId].removeItem(Value._expiresKeyGen(key));
       });
     });
     Value._values = {};
+    Value._expires = {};
     Value._storages = [];
+  }
+
+  /**
+   * 有効期限用のキーを生成
+   * @param {string} key
+   * @returns {string}
+   * @private
+   */
+  static _expiresKeyGen(key) {
+    return `EXPIRES.${key}`;
   }
 
   /**
@@ -57,20 +80,24 @@ export default class Value {
     const defaultStorage = typeof localStorage !== 'undefined' ? localStorage : memoryStorage;
     this._storage = typeof opt.storage !== 'undefined' ? opt.storage : defaultStorage;
     this._default = typeof opt.default !== 'undefined' ? opt.default : null;
+    this._expires = typeof opt.expires === 'number' ? opt.expires : null;
     this._debouncedFlush = debounce(this.flush, opt.debounceTime ? opt.debounceTime : 200);
     this._namespace = typeof opt.namespace === 'string' ? `${opt.namespace}.` : '';
     this._key = `${this._namespace}${key}`;
+    this._cleared = false;
 
     // 新たな storage を追加された場合は管理対象に追加
     if (Value._storages.indexOf(this._storage) < 0) {
       Value._storages.push(this._storage);
       Value._values[Value._storages.length -1] = {};
+      Value._expires[Value._storages.length -1] = {};
     }
     this._storageId = Value._storages.indexOf(this._storage);
 
     // メモリ上に値がなければ storage から取り出す
     if(typeof Value._values[this._storageId][this._key] === 'undefined') {
       Value._values[this._storageId][this._key] = JSON.parse(this._storage.getItem(this._key));
+      Value._expires[this._storageId][this._key] = JSON.parse(this._storage.getItem(Value._expiresKeyGen(this._key)));
     }
   }
 
@@ -78,7 +105,11 @@ export default class Value {
    * Value インスタンスの内容を storage に保存
    */
   flush() {
+    if (typeof Value._values[this._storageId] === 'undefined' || (typeof Value._values[this._storageId][this._key] === 'undefined')) {
+      return;
+    }
     this._storage.setItem(this._key, JSON.stringify(Value._values[this._storageId][this._key]));
+    this._storage.setItem(Value._expiresKeyGen(this._key), Value._expires[this._storageId][this._key]);
   }
 
   /**
@@ -87,15 +118,39 @@ export default class Value {
    */
   clear() {
     Value._values[this._storageId][this._key] = null;
+    Value._expires[this._storageId][this._key] = null;
     this._storage.removeItem(this._key);
+    this._storage.removeItem(Value._expiresKeyGen(this._key));
   }
 
   get value() {
+    if (this.isExpired) {
+      this.clear();
+    }
     return Value._values[this._storageId][this._key] !== null ? Value._values[this._storageId][this._key] : this._default;
   }
 
   set value(value) {
     Value._values[this._storageId][this._key] = value;
+    if (this._expires !== null) {
+      Value._expires[this._storageId][this._key] = Date.now() + this._expires;
+    }
     this._debouncedFlush();
+  }
+
+  /**
+   * 有効期限が切れているかどうか
+   * @returns {boolean}
+   */
+  get isExpired() {
+    const expires = Value._expires[this._storageId][this._key];
+    // そもそも有効期限が設定されていない場合は false
+    if (expires === null) {
+      return false;
+    }
+    if (Date.now() < expires) {
+      return false;
+    }
+    return true;
   }
 }

@@ -35,6 +35,19 @@ describe('Value', () => {
     assert(storageValue === 100);
   });
 
+  it('undefined は保存できない', () => {
+    const test1 = new Value('test');
+    test1.value = undefined;
+    const test2 = new Value('test');
+    assert(test2.value === null);
+    const flush_test1 = new Value('flush_test');
+    flush_test1.value = undefined;
+    flush_test1.flush();
+    const flush_test2 = new Value('flush_test', {default: 100});
+    assert(flush_test2.value === 100);
+
+  });
+
   it('object を利用できる', () => {
     const targetObj = {hoge: 'hoge', fuga: 200};
     const test1 = new Value('test');
@@ -53,14 +66,13 @@ describe('Value', () => {
     assert(test2.value === null);
   });
 
-  it('初期値にを指定した値に 0 や false を設定できる', () => {
+  it('初期値を指定した値に 0 や false を設定できる', () => {
     const test1 = new Value('test', {default: 100});
     assert(test1.value === 100);
     test1.value = 0;
     assert(test1.value === 0);
     test1.value = false;
     assert(test1.value === false);
-
   });
 
   it('初期値に false を指定できる', () => {
@@ -91,5 +103,35 @@ describe('Value', () => {
     assert(test2.value === null);
     test2.value = 50;
     assert(test1.value === 30);
+  });
+
+  it('expires の指定ができる', () => {
+    const test1 = new Value('test1', {expires: 300});
+    test1.value = 30;
+    const test2 = new Value('test2', {expires: 300, default: 100});
+    test2.value = 200;
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        assert(test1.value === null);
+        assert(test2.value === 100);
+        resolve();
+      }, 600);
+    });
+  });
+
+  it('同一のキーに対して expires の指定をしたりしなかったりできる', () => {
+    const test1 = new Value('test', {expires: 300, default: 100});
+    test1.value = 30;
+    const test2 = new Value('test', {default: 200});
+    assert(test2.value === 30);
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        assert(test1.value === 100);
+        assert(test2.value === 200);
+        const test3 = new Value('test', {default: 300});
+        assert(test3.value === 300);
+        resolve();
+      }, 600);
+    });
   });
 });
