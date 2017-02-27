@@ -55,6 +55,37 @@ export default class Value {
   }
 
   /**
+   * storage に保存されている期限切れデータを全て削除します。
+   * どんな storage が使われているかは１つでもインスタンス化されてないとわからないので、
+   * gc する storage は Value._storages にあるものだけを対象にします。
+   */
+  static gc() {
+    for (let storageId = 0; storageId < Value._storages.length; ++storageId) {
+      const storage = Value._storages[storageId];
+      // storage に存在するキーリスト
+      let keys = [];
+      for (let i = 0; i < storage.length; ++i) {
+        keys.push(storage.key(i));
+      }
+
+      // それぞれのキーについて
+      keys.forEach((key) => {
+        // expire 時刻を保存してあるキー名を調べる。
+        const expiresKey = Value._expiresKeyGen(key);
+        // キーが存在しない、または期限が切れていない場合は何もしない
+        if (keys.indexOf(expiresKey) < 0 || parseInt(storage.getItem(expiresKey), 10) > Date.now()) {
+          return;
+        }
+        // 期限切れの場合は、メモリと storage から削除
+        delete Value._values[storageId][key];
+        delete Value._expires[storageId][key];
+        storage.removeItem(key);
+        storage.removeItem(expiresKey);
+      });
+    }
+  }
+
+  /**
    * 有効期限用のキーを生成
    * @param {string} key
    * @returns {string}
@@ -91,6 +122,7 @@ export default class Value {
       Value._storages.push(this._storage);
       Value._values[Value._storages.length -1] = {};
       Value._expires[Value._storages.length -1] = {};
+      Value.gc();
     }
     this._storageId = Value._storages.indexOf(this._storage);
 
