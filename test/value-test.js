@@ -146,6 +146,7 @@ describe('Value', () => {
         assert(test1.value === null);
         assert(test2.value === 50);
         assert(localStorage.getItem('test1') === null);
+        assert(localStorage.getItem(Value._expiresKeyGen('test1')) === null);
         assert(localStorage.getItem('test2') === '50');
         resolve();
       }, 600);
