@@ -72,8 +72,13 @@ export default class Value {
       keys.forEach((key) => {
         // expire 時刻を保存してあるキー名を調べる。
         const expiresKey = Value._expiresKeyGen(key);
-        // キーが存在しない、または期限が切れていない場合は何もしない
-        if (keys.indexOf(expiresKey) < 0 || parseInt(storage.getItem(expiresKey), 10) > Date.now()) {
+        // キーが存在しないときは何もしない
+        if (keys.indexOf(expiresKey) < 0) {
+          return;
+        }
+        // 期限が切れていない場合は何もしない
+        const expire = storage.getItem(expiresKey);
+        if (!expire || parseInt(expire, 10) > Date.now()) {
           return;
         }
         // 期限切れの場合は、メモリと storage から削除
