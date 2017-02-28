@@ -134,4 +134,22 @@ describe('Value', () => {
       }, 600);
     });
   });
+
+  it('gc で期限切れのデータが削除される', () => {
+    const test1 = new Value('test1', {expires: 300});
+    test1.value = 30;
+    const test2 = new Value('test2', {expires: 1000});
+    test2.value = 50;
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        Value.gc();
+        assert(test1.value === null);
+        assert(test2.value === 50);
+        assert(localStorage.getItem('test1') === null);
+        assert(localStorage.getItem(Value._expiresKeyGen('test1')) === null);
+        assert(localStorage.getItem('test2') === '50');
+        resolve();
+      }, 600);
+    });
+  });
 });
