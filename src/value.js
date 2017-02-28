@@ -101,6 +101,19 @@ export default class Value {
   }
 
   /**
+   * localStorage が利用可能かどうか
+   * @returns {boolean}
+   * @private
+   */
+  static _isLocalStorageAvailable() {
+    try {
+      return (typeof localStorage !== 'undefined');
+    } catch (e) {}
+
+    return false;
+  }
+
+  /**
    * namespace 指定をした Value を返す
    * @param {string} name
    * @returns {function(key: string, opt: object)}
@@ -113,7 +126,7 @@ export default class Value {
   }
 
   constructor(key, opt = {}) {
-    const defaultStorage = typeof localStorage !== 'undefined' ? localStorage : memoryStorage;
+    const defaultStorage = Value._isLocalStorageAvailable() ? localStorage : memoryStorage;
     this._storage = typeof opt.storage !== 'undefined' ? opt.storage : defaultStorage;
     this._default = typeof opt.default !== 'undefined' ? opt.default : null;
     this._expires = typeof opt.expires === 'number' ? opt.expires : null;
