@@ -145,9 +145,13 @@ export default class Value {
     this._storageId = Value._storages.indexOf(this._storage);
 
     // メモリ上に値がなければ storage から取り出す
-    if(typeof Value._values[this._storageId][this._key] === 'undefined') {
-      Value._values[this._storageId][this._key] = JSON.parse(this._storage.getItem(this._key));
-      Value._expires[this._storageId][this._key] = JSON.parse(this._storage.getItem(Value._expiresKeyGen(this._key)));
+    if (typeof Value._values[this._storageId][this._key] === 'undefined') {
+      try {
+        Value._values[this._storageId][this._key] = JSON.parse(this._storage.getItem(this._key));
+        Value._expires[this._storageId][this._key] = JSON.parse(this._storage.getItem(Value._expiresKeyGen(this._key)));
+      } catch (error) {
+        (console.error || console.log)('invalid value on storage-value', this._key, error);
+      }
     }
   }
 

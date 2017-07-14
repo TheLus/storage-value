@@ -1,10 +1,28 @@
 import assert from 'power-assert';
 import Value from '../src/value';
 
+const nativeConsoleError = console.error;
+let errors = [];
+
 describe('Value', () => {
+
+  before(() => {
+    // console.error() をテスト用に上書きする
+    console.error = (...args) => {
+      errors.push(args);
+    };
+  });
 
   beforeEach(() => {
     Value.clear();
+  });
+
+  afterEach(() => {
+    errors = [];
+  });
+
+  after(() => {
+    console.error = nativeConsoleError;
   });
 
   it('value に代入すると storage に保存される', () => {
@@ -151,5 +169,17 @@ describe('Value', () => {
         resolve();
       }, 600);
     });
+  });
+
+  it('invalid な値が入っている場合は無視されて console.error 出力がされる', () => {
+    // {} が閉じられていない
+    localStorage.setItem('InVaLiD', '{"foo":"var"');
+
+    const v = new Value('InVaLiD');
+    assert(v.value === null);
+    assert(errors.length === 1);
+    const error = errors[0];
+    assert(error[0] === 'invalid value on storage-value');
+    assert(error[1] === 'InVaLiD');
   });
 });
