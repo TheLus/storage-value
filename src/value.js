@@ -34,7 +34,9 @@ export default class Value {
           return;
         }
         Value._storages[storageId].setItem(key, JSON.stringify(Value._values[storageId][key]));
-        Value._storages[storageId].setItem(Value._expiresKeyGen(key), Value._expires[storageId][key]);
+        if (Value._expires[storageId][key]) {
+          Value._storages[storageId].setItem(Value._expiresKeyGen(key), Value._expires[storageId][key]);
+        }
       });
     });
   }
@@ -78,7 +80,7 @@ export default class Value {
         }
         // 期限が切れていない場合は何もしない
         const expire = storage.getItem(expiresKey);
-        if (!expire || parseInt(expire, 10) > Date.now()) {
+        if (!expire || expire === 'null' || parseInt(expire, 10) > Date.now()) {
           return;
         }
         // 期限切れの場合は、メモリと storage から削除
