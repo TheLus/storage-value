@@ -36,6 +36,8 @@ export default class Value {
         Value._storages[storageId].setItem(key, JSON.stringify(Value._values[storageId][key]));
         if (Value._expires[storageId][key]) {
           Value._storages[storageId].setItem(Value._expiresKeyGen(key), Value._expires[storageId][key]);
+        } else {
+          Value._storages[storageId].removeItem(Value._expiresKeyGen(key));
         }
       });
     });
