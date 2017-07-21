@@ -34,7 +34,11 @@ export default class Value {
           return;
         }
         Value._storages[storageId].setItem(key, JSON.stringify(Value._values[storageId][key]));
-        Value._storages[storageId].setItem(Value._expiresKeyGen(key), Value._expires[storageId][key]);
+        if (Value._expires[storageId][key]) {
+          Value._storages[storageId].setItem(Value._expiresKeyGen(key), Value._expires[storageId][key]);
+        } else {
+          Value._storages[storageId].removeItem(Value._expiresKeyGen(key));
+        }
       });
     });
   }
@@ -77,8 +81,8 @@ export default class Value {
           return;
         }
         // 期限が切れていない場合は何もしない
-        const expire = storage.getItem(expiresKey);
-        if (!expire || parseInt(expire, 10) > Date.now()) {
+        const expire = parseInt(storage.getItem(expiresKey), 10);
+        if (!expire || expire > Date.now()) {
           return;
         }
         // 期限切れの場合は、メモリと storage から削除

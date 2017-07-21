@@ -182,4 +182,18 @@ describe('Value', () => {
     assert(error[0] === 'invalid value on storage-value');
     assert(error[1] === 'InVaLiD');
   });
+
+  it('gc で expires が未指定のキーは削除しない', () => {
+    const v = new Value('test');
+    v.value = 'a';
+    return new Promise((resolve) => {
+      // 非同期で実行される flush の解決を待つ
+      setTimeout(() => {
+        assert(v.value === 'a', 'gc する前に既に削除されている');
+        Value.gc();
+        assert(v.value === 'a', 'gc によって削除されている');
+        resolve();
+      }, 600);
+    });
+  });
 });
