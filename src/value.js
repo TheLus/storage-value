@@ -81,8 +81,8 @@ export default class Value {
           return;
         }
         // 期限が切れていない場合は何もしない
-        const expire = storage.getItem(expiresKey);
-        if (!expire || expire === 'null' || parseInt(expire, 10) > Date.now()) {
+        const expire = parseInt(storage.getItem(expiresKey), 10);
+        if (!expire || expire > Date.now()) {
           return;
         }
         // 期限切れの場合は、メモリと storage から削除
