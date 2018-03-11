@@ -1,5 +1,5 @@
 import assert from 'power-assert';
-import memoryStorage from '../src/memory-storage';
+import memoryStorage from '../lib/memory-storage';
 
 describe('memoryStorage', () => {
 
