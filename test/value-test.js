@@ -1,5 +1,5 @@
 import assert from 'power-assert';
-import Value from '../src/value';
+import Value from '../lib/value';
 
 const nativeConsoleError = console.error;
 let errors = [];
