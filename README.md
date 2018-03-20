@@ -61,16 +61,16 @@ console.log(volume3.value); // 100
 ```js
 import Value from 'storage-value';
 
-const HogeValue = Value.namespace('hoge');
-const FugaValue = Value.namespace('fuga');
+const createHogeValue = Value.namespace('hoge');
+const createFugaValue = Value.namespace('fuga');
 
-const test1 = new HogeValue('test');
+const test1 = createHogeValue('test');
 test1.value = 100;
-const test2 = new FugaValue('test');
+const test2 = createFugaValue('test');
 console.log(test2.value); // null
 test2.value = 30;
 
-const test3 = new HogeValue('test');
+const test3 = createHogeValue('test');
 console.log(test3.value); // 100
 ```
 ## License
