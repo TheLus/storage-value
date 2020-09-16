@@ -79,15 +79,19 @@ describe('Value', () => {
 
   it('初期値を指定できる', () => {
     const test1 = new Value('test', {default: 30});
+    assert(test1.useDefault === true);
     assert(test1.value === 30);
     const test2 = new Value('test');
+    assert(test1.useDefault === true);
     assert(test2.value === null);
   });
 
   it('初期値を指定した値に 0 や false を設定できる', () => {
     const test1 = new Value('test', {default: 100});
+    assert(test1.useDefault === true);
     assert(test1.value === 100);
     test1.value = 0;
+    assert(test1.useDefault === false);
     assert(test1.value === 0);
     test1.value = false;
     assert(test1.value === false);
