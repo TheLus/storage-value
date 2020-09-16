@@ -185,12 +185,19 @@ export class Value {
     this.storage.removeItem(Value._expiresKeyGen(this.key));
   }
 
-  get value(): any {
+  get useDefault(): boolean {
     if (this.isExpired) {
       this.clear();
     }
     const value = Value._values[this.storageId][this.key];
-    return (value === null || typeof value === 'undefined') ? this.defaults : Value._values[this.storageId][this.key];
+    return (value === null || typeof value === 'undefined');
+  }
+
+  get value(): any {
+    if (this.isExpired) {
+      this.clear();
+    }
+    return this.useDefault ? this.defaults : Value._values[this.storageId][this.key];
   }
 
   set value(value: any) {
