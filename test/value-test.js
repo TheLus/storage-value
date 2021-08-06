@@ -175,6 +175,44 @@ describe('Value', () => {
     });
   });
 
+  it('storage に key 関数がなくても Value.gc が動作する', () => {
+    const dummyStorage = {};
+    Object.defineProperty(dummyStorage, 'setItem', {
+      get: () => (key, value) => {
+        dummyStorage[key] = value;
+      }
+    });
+    Object.defineProperty(dummyStorage, 'getItem', {
+      get: () => (key) => {
+        return dummyStorage[key] || null;
+      }
+    });
+    Object.defineProperty(dummyStorage, 'removeItem', {
+      get: () => (key) => {
+        delete dummyStorage[key];
+      }
+    });
+    Object.defineProperty(dummyStorage, 'clear', {
+      get: () => () => {
+      }
+    });
+    const test1 = new Value('test1', {expires: 300, storage: dummyStorage});
+    test1.value = 30;
+    const test2 = new Value('test2', {expires: 1000, storage: dummyStorage});
+    test2.value = 50;
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        Value.gc();
+        assert(test1.value === null);
+        assert(test2.value === 50);
+        assert(dummyStorage.getItem('test1') === null);
+        assert(dummyStorage.getItem(Value._expiresKeyGen('test1')) === null);
+        assert(dummyStorage.getItem('test2') === '50');
+        resolve();
+      }, 600);
+    });
+  });
+
   it('invalid な値が入っている場合は無視されて console.error 出力がされる', () => {
     // {} が閉じられていない
     localStorage.setItem('InVaLiD', '{"foo":"var"');
