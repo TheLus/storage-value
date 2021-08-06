@@ -61,12 +61,24 @@ export class Value {
    * gc する storage は Value._storages にあるものだけを対象にします。
    */
   static gc(): void {
-    Value._storages.forEach((storage, storageId) => {
-      for (let i = 0; i < storage.length; ++i) {
-        const key = storage.key(i);
-        if (!key) {
-          continue;
+    const iterate = (storage: Storage, callback: (key: string) => void) => {
+      if (typeof storage.key == 'function') {
+        const keys = [];
+        for (let i = 0; i < storage.length; ++i) {
+          const key = storage.key(i);
+          if (key) {
+            keys.push(key)
+          }
         }
+        keys.forEach(key => callback(key));
+      } else {
+        for (let key in storage) {
+          callback(key);
+        }
+      }
+    };
+    Value._storages.forEach((storage, storageId) => {
+      iterate(storage, key => {
         // expire 時刻を保存してあるキー名を調べる。
         const expiresKey = Value._expiresKeyGen(key);
         let expires;
@@ -74,23 +86,22 @@ export class Value {
           expires = JSON.parse(storage.getItem(expiresKey) as string);
         } catch (error) {
           (console.error || console.log)('invalid expires on storage-value', expiresKey, error);
-          continue;
+          return
         }
         // expires が数値でないときは何もしない
         if (typeof expires !== 'number') {
-          continue;
+          return
         }
         // 期限が切れていない場合は何もしない
         if (expires > Date.now()) {
-          continue;
+          return
         }
         // 期限切れの場合は、メモリと storage から削除
         delete Value._values[storageId][key];
         delete Value._expires[storageId][key];
         storage.removeItem(key);
         storage.removeItem(expiresKey);
-        i--;
-      }
+      })
     });
   }
 
